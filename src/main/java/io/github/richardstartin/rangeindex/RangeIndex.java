@@ -18,4 +18,18 @@ public interface RangeIndex {
     bitmap.add(0L, max);
     return bitmap;
   }
+
+  int bitmapCount();
+
+  long serializedSizeInBytes();
+
+  static long serializedSizeInBytes(RoaringBitmap[] bitmaps) {
+    long size = 0;
+    for (RoaringBitmap bitmap : bitmaps) {
+      if (null != bitmap) {
+        size += bitmap.serializedSizeInBytes();
+      }
+    }
+    return size;
+  }
 }

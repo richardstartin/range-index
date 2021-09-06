@@ -3,6 +3,7 @@ package io.github.richardstartin.rangeindex;
 import org.openjdk.jmh.annotations.*;
 import org.roaringbitmap.RoaringBitmap;
 
+import java.util.Arrays;
 import java.util.function.LongSupplier;
 
 @State(Scope.Benchmark)
@@ -16,8 +17,6 @@ public class LTEBenchmark {
 
   @Param("42")
   long seed;
-
-  @Param("10000")
   long threshold;
 
   @Param
@@ -29,10 +28,14 @@ public class LTEBenchmark {
   public void setup() {
     Accumulator<? extends RangeIndex> accumulator = indexType.accumulator();
     LongSupplier data = Distribution.parse(seed, distribution);
+    long[] values = new long[(int)max];
     for (int i = 0; i < max; ++i) {
-      accumulator.add(data.getAsLong());
+      values[i] = data.getAsLong();
+      accumulator.add(values[i]);
     }
     this.index = accumulator.seal();
+    Arrays.sort(values);
+    this.threshold = values[values.length / 2];
   }
 
   @Benchmark
