@@ -1,78 +1,62 @@
 package io.github.richardstartin.rangeindex;
 
 public enum IndexType {
-  BASE_2 {
+  SPECIALIZED {
     @Override
-    public Accumulator<? extends RangeIndex> accumulator() {
-      return Base2RangeIndex.accumulator();
+    public Accumulator<? extends RangeIndex> accumulator(int base) {
+      switch (base) {
+        case 2:
+          return Base2RangeIndex.accumulator();
+        case 4:
+          return Base4RangeIndex.accumulator();
+        case 10:
+          return Base10RangeIndex.accumulator();
+        case 16:
+          return Base16RangeIndex.accumulator();
+        default:
+          throw new IllegalStateException();
+      }
     }
   },
-  BASE_2_TRIMMED {
+  GENERIC {
     @Override
-    public Accumulator<? extends RangeIndex> accumulator() {
-      return TrimmedBase2RangeIndex.accumulator();
+    public Accumulator<? extends RangeIndex> accumulator(int base) {
+      return GenericBaseRangeIndex.accumulator(base);
     }
   },
-  BASE_2_GENERIC {
+  TRIMMED {
     @Override
-    public Accumulator<? extends RangeIndex> accumulator() {
-      return GenericBaseRangeIndex.accumulator(2);
+    public Accumulator<? extends RangeIndex> accumulator(int base) {
+      switch (base) {
+        case 2:
+          return TrimmedBase2RangeIndex.accumulator();
+        case 4:
+          return TrimmedBase4RangeIndex.accumulator();
+        case 10:
+          return TrimmedBase10RangeIndex.accumulator();
+        case 16:
+          return TrimmedBase16RangeIndex.accumulator();
+        default:
+          throw new IllegalStateException();
+      }
     }
   },
-  BASE_4 {
+  RELATIVE {
     @Override
-    public Accumulator<? extends RangeIndex> accumulator() {
-      return Base4RangeIndex.accumulator();
-    }
-  },
-  BASE_4_TRIMMED {
-    @Override
-    public Accumulator<? extends RangeIndex> accumulator() {
-      return TrimmedBase4RangeIndex.accumulator();
-    }
-  },
-  BASE_4_GENERIC {
-    @Override
-    public Accumulator<? extends RangeIndex> accumulator() {
-      return GenericBaseRangeIndex.accumulator(4);
-    }
-  },
-  BASE_10 {
-    @Override
-    public Accumulator<? extends RangeIndex> accumulator() {
-      return Base10RangeIndex.accumulator();
-    }
-  },
-  BASE_10_TRIMMED {
-    @Override
-    public Accumulator<? extends RangeIndex> accumulator() {
-      return TrimmedBase10RangeIndex.accumulator();
-    }
-  },
-  BASE_10_GENERIC {
-    @Override
-    public Accumulator<? extends RangeIndex> accumulator() {
-      return GenericBaseRangeIndex.accumulator(10);
-    }
-  },
-  BASE_16 {
-    @Override
-    public Accumulator<? extends RangeIndex> accumulator() {
-      return Base16RangeIndex.accumulator();
-    }
-  },
-  BASE_16_TRIMMED {
-    @Override
-    public Accumulator<? extends RangeIndex> accumulator() {
-      return TrimmedBase16RangeIndex.accumulator();
-    }
-  },
-  BASE_16_GENERIC {
-    @Override
-    public Accumulator<? extends RangeIndex> accumulator() {
-      return GenericBaseRangeIndex.accumulator(16);
+    public Accumulator<? extends RangeIndex> accumulator(int base) {
+      switch (base) {
+        case 2:
+          return TrimmedBase2RangeIndex.accumulator();
+        case 4:
+          return TrimmedBase4RangeIndex.accumulator();
+        case 10:
+          return TrimmedBase10RangeIndex.accumulator();
+        case 16:
+          return TrimmedBase16RangeIndex.accumulator();
+        default:
+          throw new IllegalStateException();
+      }
     }
   };
-
-  public abstract Accumulator<? extends RangeIndex> accumulator();
+  public abstract Accumulator<? extends RangeIndex> accumulator(int base);
 }

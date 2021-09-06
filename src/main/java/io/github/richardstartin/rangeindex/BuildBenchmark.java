@@ -1,12 +1,15 @@
 package io.github.richardstartin.rangeindex;
 
 import org.openjdk.jmh.annotations.*;
-import org.roaringbitmap.RoaringBitmap;
 
 import java.util.function.LongSupplier;
 
 @State(Scope.Thread)
 public class BuildBenchmark {
+
+  @Param({"2", "4", "10", "16"})
+  private int base;
+
   @Param({"NORMAL(100000,10)", "UNIFORM(0,100000)", "UNIFORM(1000000,1100000)", "EXP(0.0001)"})
   String distribution;
 
@@ -32,7 +35,7 @@ public class BuildBenchmark {
 
   @Benchmark
   public RangeIndex build(IndexSizeCounter counter) {
-    Accumulator<? extends RangeIndex> acc = indexType.accumulator();
+    Accumulator<? extends RangeIndex> acc = indexType.accumulator(base);
     for (long datum : data) {
       acc.add(datum);
     }

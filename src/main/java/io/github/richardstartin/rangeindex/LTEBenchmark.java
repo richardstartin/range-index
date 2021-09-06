@@ -9,6 +9,9 @@ import java.util.function.LongSupplier;
 @State(Scope.Benchmark)
 public class LTEBenchmark {
 
+  @Param({"2", "4", "10", "16"})
+  private int base;
+
   @Param({"NORMAL(100000,10)", "UNIFORM(0,100000)", "UNIFORM(1000000,1100000)", "EXP(0.0001)"})
   String distribution;
 
@@ -26,16 +29,26 @@ public class LTEBenchmark {
 
   @Setup(Level.Trial)
   public void setup() {
-    Accumulator<? extends RangeIndex> accumulator = indexType.accumulator();
+    Accumulator<? extends RangeIndex> accumulator = indexType.accumulator(base);
     LongSupplier data = Distribution.parse(seed, distribution);
     long[] values = new long[(int)max];
+    long minValue = Long.MAX_VALUE;
     for (int i = 0; i < max; ++i) {
       values[i] = data.getAsLong();
-      accumulator.add(values[i]);
+      if (indexType != IndexType.RELATIVE) {
+        accumulator.add(values[i]);
+      } else {
+        minValue = Math.min(values[i], minValue);
+      }
+    }
+    if (indexType == IndexType.RELATIVE) {
+      for (long value : values) {
+        accumulator.add(value - minValue);
+      }
     }
     this.index = accumulator.seal();
     Arrays.sort(values);
-    this.threshold = values[values.length / 2];
+    this.threshold = values[values.length / 2] - (indexType == IndexType.RELATIVE ? minValue : 0);
   }
 
   @Benchmark
