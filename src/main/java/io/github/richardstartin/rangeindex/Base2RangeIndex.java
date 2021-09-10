@@ -33,6 +33,20 @@ public class Base2RangeIndex implements RangeIndex {
     return bitmap;
   }
 
+  @Override
+  public int bitmapCount() {
+    int count = 0;
+    for (RoaringBitmap bitmap : bitmaps) {
+      count += bitmap == null ? 0 : 1;
+    }
+    return count;
+  }
+
+  @Override
+  public long serializedSizeInBytes() {
+    return RangeIndex.serializedSizeInBytes(bitmaps);
+  }
+
   private static class Base2RangeIndexBuilder implements Accumulator<Base2RangeIndex> {
 
     private final RoaringBitmapWriter<RoaringBitmap>[] writers;

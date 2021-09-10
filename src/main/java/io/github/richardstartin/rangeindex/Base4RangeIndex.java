@@ -36,6 +36,19 @@ public class Base4RangeIndex implements RangeIndex {
     return bitmap;
   }
 
+  @Override
+  public long serializedSizeInBytes() {
+    return RangeIndex.serializedSizeInBytes(bitmaps);
+  }
+
+  @Override
+  public int bitmapCount() {
+    int count = 0;
+    for (RoaringBitmap bitmap : bitmaps) {
+      count += bitmap == null ? 0 : 1;
+    }
+    return count;
+  }
 
   @SuppressWarnings("unchecked")
   private static final class Builder implements Accumulator<Base4RangeIndex> {
