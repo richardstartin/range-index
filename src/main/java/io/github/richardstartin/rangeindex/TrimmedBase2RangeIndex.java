@@ -21,10 +21,7 @@ public class TrimmedBase2RangeIndex implements RangeIndex {
 
   @Override
   public RoaringBitmap lessThanOrEqual(long max) {
-    if (63 - Long.numberOfLeadingZeros(max) > bitmaps.length) {
-      return all();
-    }
-    RoaringBitmap bitmap = (max & 1) == 0 ? bitmaps[0].clone() : all();
+    RoaringBitmap bitmap = (max & 1) == 0 ? bitmaps[0].clone() : range(maxRid);
     long mask = 2;
     for (int i = 1; i < bitmaps.length; ++i) {
       if ((max & mask) != mask) {
@@ -35,12 +32,6 @@ public class TrimmedBase2RangeIndex implements RangeIndex {
       mask <<= 1;
     }
     return bitmap;
-  }
-
-  private RoaringBitmap all() {
-    RoaringBitmap all = new RoaringBitmap();
-    all.add(0, maxRid);
-    return all;
   }
 
   private static final class Builder implements Accumulator<TrimmedBase2RangeIndex> {
