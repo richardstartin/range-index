@@ -33,6 +33,16 @@ public class BucketedRangeIndex implements RangeIndex {
     return bitmap;
   }
 
+  @Override
+  public int bitmapCount() {
+    return bitmaps.length;
+  }
+
+  @Override
+  public long serializedSizeInBytes() {
+    return RangeIndex.serializedSizeInBytes(bitmaps);
+  }
+
   @SuppressWarnings("unchecked")
   private static final class Builder implements Accumulator<BucketedRangeIndex> {
 

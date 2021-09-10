@@ -60,7 +60,7 @@ public enum IndexType {
   },
   BUCKETED {
     @Override
-    public Accumulator<? extends RangeIndex> accumulator() {
+    public Accumulator<? extends RangeIndex> accumulator(int base) {
       return BucketedRangeIndex.accumulator();
     }
   };
