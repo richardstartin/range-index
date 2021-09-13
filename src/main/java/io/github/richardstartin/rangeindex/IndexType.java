@@ -63,6 +63,18 @@ public enum IndexType {
     public Accumulator<? extends RangeIndex> accumulator(int base) {
       return BucketedRangeIndex.accumulator();
     }
+  },
+  BUCKETED_RANGE_SCAN {
+    @Override
+    public Accumulator<? extends RangeIndex> accumulator(int base) {
+      return BucketedRangeScan.accumulator();
+    }
+  },
+  SCAN {
+    @Override
+    public Accumulator<? extends RangeIndex> accumulator(int base) {
+      return Scan.accumulator();
+    }
   };
   public abstract Accumulator<? extends RangeIndex> accumulator(int base);
 }
