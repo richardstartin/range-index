@@ -5,7 +5,7 @@ import org.roaringbitmap.RoaringBitmapWriter;
 
 import java.util.Arrays;
 
-public class BucketedRangeIndex implements RangeIndex {
+public class BucketedRangeIndex implements RangeIndex<RoaringBitmap> {
 
 
   public static Accumulator<BucketedRangeIndex> accumulator() {

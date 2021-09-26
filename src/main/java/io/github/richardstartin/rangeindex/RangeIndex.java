@@ -2,22 +2,11 @@ package io.github.richardstartin.rangeindex;
 
 import org.roaringbitmap.RoaringBitmap;
 
-public interface RangeIndex {
+import java.util.BitSet;
 
-  RoaringBitmap lessThanOrEqual(long max);
+public interface RangeIndex<T> {
 
-  default RoaringBitmap between(long min, long max) {
-    RoaringBitmap all = lessThanOrEqual(max);
-    RoaringBitmap tooSmall = lessThanOrEqual(min - 1);
-    all.andNot(tooSmall);
-    return all;
-  }
-
-  default RoaringBitmap range(long max) {
-    RoaringBitmap bitmap = new RoaringBitmap();
-    bitmap.add(0L, max);
-    return bitmap;
-  }
+  T lessThanOrEqual(long max);
 
   int bitmapCount();
 
@@ -28,6 +17,16 @@ public interface RangeIndex {
     for (RoaringBitmap bitmap : bitmaps) {
       if (null != bitmap) {
         size += bitmap.serializedSizeInBytes();
+      }
+    }
+    return size;
+  }
+
+  static long serializedSizeInBytes(BitSet[] bitmaps) {
+    long size = 0;
+    for (BitSet bitmap : bitmaps) {
+      if (null != bitmap) {
+        size += (bitmap.length() >>> 3);
       }
     }
     return size;

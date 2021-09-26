@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public abstract class AbstractIndexTest<Index extends RangeIndex> {
+public abstract class AbstractIndexTest<Index extends RangeIndex<RoaringBitmap>> {
 
   abstract Accumulator<Index> create();
   final LongStream values() {
@@ -79,10 +79,10 @@ public abstract class AbstractIndexTest<Index extends RangeIndex> {
   }
 
   //@Test
-  public void testBetween() {
-    RoaringBitmap expected = new RoaringBitmap();
-    expected.add(min + 1, max);
-    assertEquals(expected.getCardinality(), index.between(min + 1, max - 1).getCardinality());
-    assertEquals(expected, index.between(min + 1, max - 1));
-  }
+//  public void testBetween() {
+//    RoaringBitmap expected = new RoaringBitmap();
+//    expected.add(min + 1, max);
+//    assertEquals(expected.getCardinality(), index.between(min + 1, max - 1).getCardinality());
+//    assertEquals(expected, index.between(min + 1, max - 1));
+//  }
 }

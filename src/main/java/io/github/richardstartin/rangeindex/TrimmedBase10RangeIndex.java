@@ -5,7 +5,7 @@ import org.roaringbitmap.RoaringBitmapWriter;
 
 import java.util.Arrays;
 
-public class TrimmedBase10RangeIndex implements RangeIndex {
+public class TrimmedBase10RangeIndex implements RangeIndex<RoaringBitmap> {
 
   private static final int SLICE_COUNT = (int)Math.log10(Long.MAX_VALUE);
 
@@ -26,7 +26,7 @@ public class TrimmedBase10RangeIndex implements RangeIndex {
   @Override
   public RoaringBitmap lessThanOrEqual(long max) {
     int digit = (int) (max % 10);
-    RoaringBitmap bitmap = digit < 9 ? bitmaps[digit].clone() : range(this.max);
+    RoaringBitmap bitmap = digit < 9 ? bitmaps[digit].clone() : RoaringBitmap.bitmapOfRange(0, this.max);
     for (int i = 1; i < sliceCount; ++i) {
       max /= 10;
       digit = (int) (max % 10);

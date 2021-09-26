@@ -18,6 +18,23 @@ public enum IndexType {
       }
     }
   },
+  UNCOMPRESSED {
+    @Override
+    public Accumulator<? extends RangeIndex> accumulator(int base) {
+      switch (base) {
+        case 2:
+          return UncompressedBase2RangeIndex.accumulator();
+        case 4:
+          return UncompressedBase4RangeIndex.accumulator();
+        case 10:
+          return UncompressedBase10RangeIndex.accumulator();
+        case 16:
+          return UncompressedBase16RangeIndex.accumulator();
+        default:
+          throw new IllegalStateException();
+      }
+    }
+  },
   GENERIC {
     @Override
     public Accumulator<? extends RangeIndex> accumulator(int base) {

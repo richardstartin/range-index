@@ -5,7 +5,9 @@ import org.roaringbitmap.RoaringBitmapWriter;
 
 import java.util.Arrays;
 
-public class Base16RangeIndex implements RangeIndex {
+import static org.roaringbitmap.RoaringBitmap.bitmapOfRange;
+
+public class Base16RangeIndex implements RangeIndex<RoaringBitmap> {
 
   public Base16RangeIndex(long max, RoaringBitmap[] bitmaps) {
     this.max = max;
@@ -22,7 +24,7 @@ public class Base16RangeIndex implements RangeIndex {
   @Override
   public RoaringBitmap lessThanOrEqual(long max) {
     int digit = (int) max & 0xF;
-    RoaringBitmap bitmap = digit < 0xF ? bitmaps[digit].clone() : range(this.max);
+    RoaringBitmap bitmap = digit < 0xF ? bitmaps[digit].clone() : bitmapOfRange(0, this.max);
     for (int i = 1; i < 16; ++i) {
       max >>>= 4;
       digit = (int) max & 0xF;

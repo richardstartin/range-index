@@ -5,7 +5,7 @@ import org.roaringbitmap.RoaringBitmapWriter;
 
 import java.util.Arrays;
 
-public class Scan implements RangeIndex {
+public class Scan implements RangeIndex<RoaringBitmap> {
 
   public static Accumulator<Scan> accumulator() {
     return new Accumulator<Scan>() {

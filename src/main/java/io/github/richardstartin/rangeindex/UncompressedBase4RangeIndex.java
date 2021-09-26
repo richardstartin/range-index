@@ -4,28 +4,31 @@ import org.roaringbitmap.RoaringBitmap;
 import org.roaringbitmap.RoaringBitmapWriter;
 
 import java.util.Arrays;
+import java.util.BitSet;
 
 import static org.roaringbitmap.RoaringBitmap.bitmapOfRange;
 
-public class Base4RangeIndex implements RangeIndex<RoaringBitmap> {
+public class UncompressedBase4RangeIndex implements RangeIndex<BitSet> {
 
-  public Base4RangeIndex(long max, RoaringBitmap[] bitmaps) {
+  public UncompressedBase4RangeIndex(long max, int slices, BitSet[] bitmaps) {
     this.max = max;
+    this.slices = slices;
     this.bitmaps = bitmaps;
   }
 
-  public static Accumulator<Base4RangeIndex> accumulator() {
+  public static Accumulator<UncompressedBase4RangeIndex> accumulator() {
     return new Builder();
   }
 
   private final long max;
-  private final RoaringBitmap[] bitmaps;
+  private final int slices;
+  private final BitSet[] bitmaps;
 
   @Override
-  public RoaringBitmap lessThanOrEqual(long max) {
+  public BitSet lessThanOrEqual(long max) {
     int digit = (int) max & 3;
-    RoaringBitmap bitmap = digit < 3 ? bitmaps[digit].clone() : bitmapOfRange(0, this.max);
-    for (int i = 1; i < 32; ++i) {
+    BitSet bitmap = digit < 3 ? (BitSet) bitmaps[digit].clone() : all();
+    for (int i = 1; i < slices; ++i) {
       max >>>= 2;
       digit = (int) max & 3;
       if (digit < 3) {
@@ -38,38 +41,46 @@ public class Base4RangeIndex implements RangeIndex<RoaringBitmap> {
     return bitmap;
   }
 
+  private BitSet all() {
+    BitSet all = new BitSet((int) max);
+    all.set(0, (int)max);
+    return all;
+  }
+
   @Override
   public long serializedSizeInBytes() {
     return RangeIndex.serializedSizeInBytes(bitmaps);
   }
-
   @Override
   public int bitmapCount() {
     int count = 0;
-    for (RoaringBitmap bitmap : bitmaps) {
+    for (BitSet bitmap : bitmaps) {
       count += bitmap == null ? 0 : 1;
     }
     return count;
   }
 
-  @SuppressWarnings("unchecked")
-  private static final class Builder implements Accumulator<Base4RangeIndex> {
 
-    private final RoaringBitmapWriter<RoaringBitmap>[] writers;
+  @SuppressWarnings("unchecked")
+  private static final class Builder implements Accumulator<UncompressedBase4RangeIndex> {
+
+    private final BitSet[] bitsets;
     private int rid;
+    private long mask;
 
     public Builder() {
-      this.writers = new RoaringBitmapWriter[3 * 32];
-      Arrays.setAll(writers, i -> RoaringBitmapWriter.writer().runCompress(true).get());
+      this.bitsets = new BitSet[3 * 32];
+      Arrays.setAll(bitsets, i -> new BitSet());
     }
 
     @Override
     public void add(long value) {
+      mask |= value;
       for (int i = 0; i < 32; ++i) {
         int digit = (int)value & 3;
         // mark every bitmap greater than or equal to the digit
         for (int j = digit; j < 3; ++j) {
-          writers[i * 3 + j].add(rid);
+          bitsets[i * 3 + j].set(rid);
         }
         value >>>= 2;
       }
@@ -77,12 +88,10 @@ public class Base4RangeIndex implements RangeIndex<RoaringBitmap> {
     }
 
     @Override
-    public Base4RangeIndex seal() {
-      RoaringBitmap[] bitmaps = new RoaringBitmap[writers.length];
-      for (int i = 0; i < bitmaps.length; ++i) {
-        bitmaps[i] = writers[i].get();
-      }
-      return new Base4RangeIndex(rid, bitmaps);
+    public UncompressedBase4RangeIndex seal() {
+      int discard = Long.numberOfLeadingZeros(mask) >>> 1;
+      return new UncompressedBase4RangeIndex(rid, 32 - discard,
+              Arrays.copyOf(bitsets, bitsets.length - 3 * discard));
     }
   }
 }

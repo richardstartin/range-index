@@ -5,7 +5,9 @@ import org.roaringbitmap.RoaringBitmapWriter;
 
 import java.util.Arrays;
 
-public class GenericBaseRangeIndex implements RangeIndex {
+import static org.roaringbitmap.RoaringBitmap.bitmapOfRange;
+
+public class GenericBaseRangeIndex implements RangeIndex<RoaringBitmap> {
 
   public static Accumulator<GenericBaseRangeIndex> accumulator(int base) {
     return new Builder(base);
@@ -26,7 +28,7 @@ public class GenericBaseRangeIndex implements RangeIndex {
   @Override
   public RoaringBitmap lessThanOrEqual(long max) {
     int digit = (int) (max % base);
-    RoaringBitmap bitmap = digit < base - 1 ? bitmaps[digit].clone() : range(this.max);
+    RoaringBitmap bitmap = digit < base - 1 ? bitmaps[digit].clone() : bitmapOfRange(0, this.max);
     for (int i = 1; i < sliceCount; ++i) {
       max /= base;
       digit = (int) (max % base);
